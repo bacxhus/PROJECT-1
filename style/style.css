@@ -1,0 +1,36 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  width: 600px;
+  height: 600px;
+  flex-wrap: wrap;
+}
+
+.cell {
+  width: 11.1%;
+  height: 11.1%;
+  border: 1px solid orange;
+}
+
+
+.player {
+  background-color: red;
+}
+
+
+.aliens {
+  background-color: blue;
+}
