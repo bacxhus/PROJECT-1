@@ -6,9 +6,11 @@ const cells = []
 let lazer = 76
 let invaders = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16]
 let hasFired = false
-let director = 'right'
-let getLow = false
-let gotLow = false 
+let direction = 'right'
+let goDown = false
+let goneDown = false 
+
+
 
 // * Griddy McGrid
 for (let i = 0; i < width ** 2; i++) {
@@ -19,8 +21,11 @@ for (let i = 0; i < width ** 2; i++) {
   cells.push(div)
 }
 
+
+
 // * THE OG 
 cells[player].classList.add('player')
+
 
 
 // * Major Lazor
@@ -28,7 +33,11 @@ function lazerFire() {
 
   if (hasFired === false ) {
     lazer = player
+    // ? Setting has fired to true, it is only made false again at the end of the
+    // ? lazer statement, meaning you can't run the function again while one lazer
+    // ? already exists
     hasFired = true 
+
 
     const intervalTwo = setInterval(() => {
 
@@ -40,77 +49,94 @@ function lazerFire() {
         cells[lazer].classList.remove('lazer')
         lazer -= 9
         cells[lazer].classList.add('lazer')
+
         if (invaders.indexOf(lazer) !== -1) {
+          // ? Removing the alien class
           cells[lazer].classList.remove('aliens')
+          // ? Remove the invader from the array
           invaders.splice(invaders.indexOf(lazer), 1)
           cells[lazer].classList.remove('lazer')
           hasFired = false
           clearInterval(intervalTwo)
         }
       }
-  
     }, 250)
-
   }
-
 
 }
 
+
+
+// * Magic That Moves Aliens
+
+// ? Adding alien class to the invaders array at the start of the game.
+invaders.forEach((alien) => {
+  cells[alien].classList.add('aliens')
+})
+
 function move(amount) {
+
+  // ? Removing alien class at the stat of the iteration.
   invaders.forEach((alien) => {
     cells[alien].classList.remove('aliens')
   })
 
-  invaders = invaders.map((item) => {
-    return item = item + amount
+  // ? Mapping the alien class based on the argument.
+  invaders = invaders.map((alien) => {
+    return alien = alien + amount
   })
 
+  // ? Adding the alien class at the end of the iteration. 
   invaders.forEach((alien) => {
     cells[alien].classList.add('aliens')
   })
 
 } 
 
-
-// * Magic That Moves Aliens
-invaders.forEach((alien) => {
-  cells[alien].classList.add('aliens')
-})
-
+// ? Interval for aliens moving
 const interval = setInterval(() => {
 
-
+  // ? Testing if the aliens are on the right or the left
+  // ? If they are goDown is set to true. 
   invaders.forEach((alien) => {
-    if (alien % 9 === 0 && gotLow === false) {
-      director = 'right'
-      getLow = true
-    } else if ((alien + 1) % 9 === 0 && gotLow === false) {
-      director = 'left' 
-      getLow = true
+    if (alien % 9 === 0 && goneDown === false) {
+      direction = 'right'
+      goDown = true
+    } else if ((alien + 1) % 9 === 0 && goneDown === false) {
+      direction = 'left' 
+      goDown = true
     }
   })
 
-  if (getLow === true ) {
+
+  if (goDown === true ) {
+    // ? Because goDown is true the aliens move one down.
+    // ? goDown is put back to false and goneDown is set to true. 
     move(9)
-    getLow = false
-    gotLow = true
+    goDown = false
+    // ? WTF have I done? Where the fuck does goneDown change back to false?!
+    goneDown = true
   } else {
-    gotLow = false
-    if (director === 'left') {
+    // ? Ready to test for side-hits in If Statement above
+    goneDown = false
+
+
+    // ? Arguments for move()
+    if (direction === 'left') {
       move(-1)
-    } else if (director === 'right') {
+    } else if (direction === 'right') {
       move(1)
     }
   }
 
-  
-
+  // ? To stop the invaders
   if (invaders.includes(79)) {
     clearInterval(interval)
   }
 
 
 }, 2000)
+
 
 
 // * Sorcery That Moves The Ship
@@ -129,6 +155,10 @@ document.addEventListener('keypress', (event) => {
   }
 
 })
+
+
+
+
 
 
 // ! FAILED ATTEMPS AT THINGS. SCROLL NO FARTHER. 
