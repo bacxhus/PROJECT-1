@@ -1,14 +1,74 @@
-// * Shoe Closet
+// * SHOE CLOSET
+const startButton = document.querySelector('a')
 const grid = document.querySelector('.grid')
 const width = 9
-let player = 76
 const cells = []
-let lazer = 76
+let ship = 76
+let lazer = 0
 let invaders = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16]
+// LAZER
 let hasFired = false
+// BOMB
+let bomb = 0
+let hasDropped = false
+// ALIEN DIRECTION
 let direction = 'right'
 let goDown = false
-let goneDown = false 
+let goneDown = false
+// RESULT
+let youLost = false
+let youWon = false
+// DISPLAY: PLAYER LIVES
+const livesDiplasy = document.querySelector('.lives')
+let playerLives = 3
+// DISPLAY: PLAYER POINTS
+const pointsDisplay = document.querySelector('.points')
+let points = 0
+// LEADER BOARD
+const resetButton = document.querySelector('.reset')
+let playerScores = []
+const scoresDisplay = document.querySelector('ol')
+
+
+
+
+// * R U LOCAL? 
+if (localStorage) {
+  playerScores = JSON.parse(localStorage.getItem('scores')) || []
+  orderAndDisplayScores()
+}
+
+function leaderBoard() {
+  const newName = prompt('Enter your name for the leaderboard')
+  const newScore = points
+  const player = { name: newName, score: newScore }
+  playerScores.push(player)
+
+  if (localStorage) {
+    localStorage.setItem('scores', JSON.stringify(playerScores))
+  }
+
+  orderAndDisplayScores()
+}
+
+function orderAndDisplayScores() {
+
+  const array = playerScores
+
+    .sort((playerA, playerB) => playerB.score - playerA.score)
+
+    .map(player => {
+      return `<li>${player.name} has ${player.score} apples.</li>`
+    })
+
+  scoresDisplay.innerHTML = array.join('')
+
+}
+
+resetButton.addEventListener('click', () => {
+  localStorage.removeItem('scores')
+})
+
 
 
 
@@ -23,138 +83,217 @@ for (let i = 0; i < width ** 2; i++) {
 
 
 
+
 // * THE OG 
-cells[player].classList.add('player')
+cells[ship].classList.add('player')
 
-
-
-// * Major Lazor
-function lazerFire() {
-
-  if (hasFired === false ) {
-    lazer = player
-    // ? Setting has fired to true, it is only made false again at the end of the
-    // ? lazer statement, meaning you can't run the function again while one lazer
-    // ? already exists
-    hasFired = true 
-
-
-    const intervalTwo = setInterval(() => {
-
-      if (lazer - 9 < 0 ) {
-        cells[lazer].classList.remove('lazer')
-        hasFired = false
-        clearInterval(intervalTwo)
-      } else {
-        cells[lazer].classList.remove('lazer')
-        lazer -= 9
-        cells[lazer].classList.add('lazer')
-
-        if (invaders.indexOf(lazer) !== -1) {
-          // ? Removing the alien class
-          cells[lazer].classList.remove('aliens')
-          // ? Remove the invader from the array
-          invaders.splice(invaders.indexOf(lazer), 1)
-          cells[lazer].classList.remove('lazer')
-          hasFired = false
-          clearInterval(intervalTwo)
-        }
-      }
-    }, 250)
-  }
-
-}
-
-
-
-// * Magic That Moves Aliens
-
-// ? Adding alien class to the invaders array at the start of the game.
 invaders.forEach((alien) => {
   cells[alien].classList.add('aliens')
 })
 
-function move(amount) {
-
-  // ? Removing alien class at the stat of the iteration.
-  invaders.forEach((alien) => {
-    cells[alien].classList.remove('aliens')
-  })
-
-  // ? Mapping the alien class based on the argument.
-  invaders = invaders.map((alien) => {
-    return alien = alien + amount
-  })
-
-  // ? Adding the alien class at the end of the iteration. 
-  invaders.forEach((alien) => {
-    cells[alien].classList.add('aliens')
-  })
-
-} 
-
-// ? Interval for aliens moving
-const interval = setInterval(() => {
-
-  // ? Testing if the aliens are on the right or the left
-  // ? If they are goDown is set to true. 
-  invaders.forEach((alien) => {
-    if (alien % 9 === 0 && goneDown === false) {
-      direction = 'right'
-      goDown = true
-    } else if ((alien + 1) % 9 === 0 && goneDown === false) {
-      direction = 'left' 
-      goDown = true
-    }
-  })
 
 
-  if (goDown === true ) {
-    // ? Because goDown is true the aliens move one down.
-    // ? goDown is put back to false and goneDown is set to true. 
-    move(9)
-    goDown = false
-    // ? WTF have I done? Where the fuck does goneDown change back to false?!
-    goneDown = true
-  } else {
-    // ? Ready to test for side-hits in If Statement above
-    goneDown = false
 
+startButton.addEventListener('click', () => {
 
-    // ? Arguments for move()
-    if (direction === 'left') {
-      move(-1)
-    } else if (direction === 'right') {
-      move(1)
+  // * AVENGERS END GAME
+  function result() {
+    if (youWon) {
+      clearInterval(intervalAlien)
+      alert('You Won')
+      leaderBoard()
+    } else if (youLost) {
+      clearInterval(intervalAlien)
+      alert('Game Over')
+      leaderBoard()
     }
   }
 
-  // ? To stop the invaders
-  if (invaders.includes(79)) {
-    clearInterval(interval)
+
+  // * Major Lazor
+  function lazerFire() {
+
+    if (hasFired === false) {
+      lazer = ship
+      // BELOW STOPS FROM RUNNING MULTIPLE TIMES
+      hasFired = true
+      
+
+      const intervalLazer = setInterval(() => {
+
+        if (lazer - 9 < 0) {
+          cells[lazer].classList.remove('lazer')
+          hasFired = false
+          clearInterval(intervalLazer)
+        } else {
+          cells[lazer].classList.remove('lazer')
+          lazer -= 9
+          cells[lazer].classList.add('lazer')
+          // COLLISION STUFF
+          if (invaders.indexOf(lazer) !== -1) {
+            // REMOVE ALIEN CLASS AND INDEX
+            cells[lazer].classList.remove('aliens')
+            invaders.splice(invaders.indexOf(lazer), 1)
+            // REMOVE LAZER CLASS
+            cells[lazer].classList.remove('lazer')
+            // RESET HAS FIRED & +POINTS
+            hasFired = false
+            points += 10
+            clearInterval(intervalLazer)
+          }
+
+          // INNER TEXT POINTS
+          pointsDisplay.innerText = `${points}`
+        }
+
+        // END GAME
+        if (points >= 140) {
+          youWon = true 
+          result()
+          clearInterval(intervalLazer)
+        }
+
+      }, 250)
+    }
   }
 
 
-}, 2000)
+  // * BOMBOCLAAT 
+  if (hasDropped === false) {
+
+    // RANDOM INVADERS ARRAY
+    bomb = invaders[Math.floor(Math.random() * invaders.length)]
+    // STOPS MULTIPLE BOMBS DROPPING
+    hasDropped = true
 
 
+    const intervalBomb = setInterval(() => {
+      // MOVING BOMBS
+      if (bomb + 9 > 80) {
+        cells[bomb].classList.remove('bomb')
+        hasDropped = false
+        bomb = invaders[Math.floor(Math.random() * invaders.length)]
+      } else {
+        cells[bomb].classList.remove('bomb')
+        bomb += 9
+        cells[bomb].classList.add('bomb')
+      }
 
-// * Sorcery That Moves The Ship
-document.addEventListener('keypress', (event) => {
-  const key = event.key
-  if (key === 'w' && !(player < width)) {
-    return lazerFire()
-  } else if (key === 'a' && !(player % width === 0)) {
-    cells[player].classList.remove('player')
-    player -= 1
-    cells[player].classList.add('player')
-  } else if (key === 'd' && !(player % width === width - 1)) {
-    cells[player].classList.remove('player')
-    player += 1
-    cells[player].classList.add('player')
+
+      // REMOVING PLAYER LIFE
+      if (bomb === ship) {
+        cells[bomb].classList.remove('bomb')
+        playerLives--
+        hasDropped = false
+      }
+
+
+      // END GAME
+      if (playerLives === 0) {
+        youLost = true
+        result()
+        clearInterval(intervalBomb)
+      } else if (youWon) {
+        clearInterval(intervalBomb)
+      } else if (youLost === true) {
+        clearInterval(intervalBomb)
+      }
+
+
+      // INNTER TEXT PLAYER LIVES
+      livesDiplasy.innerText = `${playerLives}`
+
+    }, 500)
   }
 
+
+
+  // * MAGIC THAT MOVES ALIENS
+  function move(amount) {
+
+    // - ALIEN CLASS @ START OF ITERAION
+    invaders.forEach((alien) => {
+      cells[alien].classList.remove('aliens')
+    })
+
+    // MAP ALIEN CLASS BASED ON ARGUMENT
+    invaders = invaders.map((alien) => {
+      return alien = alien + amount
+    })
+
+    // + ALIEN CLASS AT END OF ITERATION
+    invaders.forEach((alien) => {
+      cells[alien].classList.add('aliens')
+    })
+
+  }
+
+  const intervalAlien = setInterval(() => {
+
+    // R ALIENS ON RIGHT OR LEFT? GODOWN = TRUE
+    invaders.forEach((alien) => {
+      if (alien % 9 === 0 && goneDown === false) {
+        direction = 'right'
+        goDown = true
+      } else if ((alien + 1) % 9 === 0 && goneDown === false) {
+        direction = 'left'
+        goDown = true
+      }
+    })
+
+
+    if (goDown === true) {
+      // ALIENS WILL MOVE 1 DOWN
+      // GO DOWN WILL BE SET BACK TO FALSE
+      move(9)
+      goDown = false
+      goneDown = true
+    } else {
+      // CONTINE MOVING TO SIDE
+      goneDown = false
+      // ARGUMENTS FOR MOVE
+      if (direction === 'left') {
+        move(-1)
+      } else if (direction === 'right') {
+        move(1)
+      }
+    }
+
+
+    // END GAME
+    if (invaders.includes(79)) {
+      youLost = true
+      result()
+    }
+
+
+  }, 2500)
+
+
+
+  // * SHIP SORCERY
+  document.addEventListener('keypress', (event) => {
+    const key = event.key
+    if (key === 'w' && !(ship < width)) {
+      return lazerFire()
+    } else if (key === 'a' && !(ship % width === 0)) {
+      cells[ship].classList.remove('player')
+      ship -= 1
+      cells[ship].classList.add('player')
+    } else if (key === 'd' && !(ship % width === width - 1)) {
+      cells[ship].classList.remove('player')
+      ship += 1
+      cells[ship].classList.add('player')
+    }
+  })
 })
+
+
+
+
+
+
+
 
 
 
