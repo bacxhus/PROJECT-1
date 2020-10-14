@@ -43,6 +43,18 @@ body {
   background-color: black;
 }
 
+.pop-win {
+  position: absolute;
+  z-index: 2;
+  height: 400px;
+  width: 600px;
+  background-color: coral;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
 /* Button */
 a {
   padding: 10px; 

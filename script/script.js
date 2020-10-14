@@ -28,7 +28,9 @@ let points = 0
 const resetButton = document.querySelector('.reset')
 let playerScores = []
 const scoresDisplay = document.querySelector('ol')
-
+// POP WIN 
+const popWin = document.querySelector('.pop-win')
+const submit = document.querySelector('button.submit')
 
 
 
@@ -93,15 +95,14 @@ invaders.forEach((alien) => {
 
 
 
-
 startButton.addEventListener('click', () => {
 
   // * AVENGERS END GAME
   function result() {
     if (youWon) {
       clearInterval(intervalAlien)
-      alert('You Won')
-      leaderBoard()
+      popWin.style.display = 'flex'
+      // leaderBoard()
     } else if (youLost) {
       clearInterval(intervalAlien)
       alert('Game Over')
@@ -153,7 +154,7 @@ startButton.addEventListener('click', () => {
           clearInterval(intervalLazer)
         }
 
-      }, 250)
+      }, 100)
     }
   }
 
@@ -289,6 +290,9 @@ startButton.addEventListener('click', () => {
 })
 
 
+submit.addEventListener('click', () => {
+  console.log('happy')
+})
 
 
 
