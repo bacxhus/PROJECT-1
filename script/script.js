@@ -6,32 +6,72 @@ const cells = []
 let ship = 76
 let lazer = 0
 let invaders = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16]
+let game = false
+
 // LAZER
 let hasFired = false
+
 // BOMB
 let bomb = 0
 let hasDropped = false
+
 // ALIEN DIRECTION
 let direction = 'right'
 let goDown = false
 let goneDown = false
+
 // RESULT
 let youLost = false
 let youWon = false
+
 // DISPLAY: PLAYER LIVES
 const livesDiplasy = document.querySelector('.lives')
 let playerLives = 3
+
 // DISPLAY: PLAYER POINTS
 const pointsDisplay = document.querySelector('.points')
 let points = 0
-// LEADER BOARD
-const resetButton = document.querySelector('.reset')
-let playerScores = []
-const scoresDisplay = document.querySelector('ol')
-// POP WIN 
-const popWin = document.querySelector('.pop-win')
-const submit = document.querySelector('button.submit')
 
+// LEADER BOARD
+const leaderboardButton = document.querySelector('#button-leaderboard')
+const popLeaderBoard = document.querySelector('#leaderboard')
+const resetButton = document.querySelector('.reset')
+const leaderBoardClose = document.querySelector('#leaderboard-close')
+const scoresDisplay = document.querySelector('ol')
+let playerScores = []
+let name = ''
+
+// POP RESULT 
+const popResult = document.querySelector('.pop')
+const submit = document.getElementById('submit')
+const titlePopResult = document.querySelector('#pop-result')
+
+// OVERLAY 
+const overlay = document.querySelector('#overlay')
+
+
+// * MODAL BOXES
+
+// SUBMIT FORM LEADERBOARD
+submit.addEventListener('click', () => {
+  const newName = document.getElementById('input').value
+  name = newName
+  leaderBoard()
+  popResult.style.display = 'none'
+  overlay.style.display = 'none'
+})
+
+// SHOW LEADERBOARD
+leaderboardButton.addEventListener('click', () => {
+  popLeaderBoard.style.display = 'flex'
+  overlay.style.display = 'block'
+})
+
+// HIDE LEADERBOARD
+leaderBoardClose.addEventListener('click', () => {
+  popLeaderBoard.style.display = 'none'
+  overlay.style.display = 'none'
+})
 
 
 // * R U LOCAL? 
@@ -41,16 +81,19 @@ if (localStorage) {
 }
 
 function leaderBoard() {
-  const newName = prompt('Enter your name for the leaderboard')
-  const newScore = points
-  const player = { name: newName, score: newScore }
-  playerScores.push(player)
-
-  if (localStorage) {
-    localStorage.setItem('scores', JSON.stringify(playerScores))
+  if ( name === '') {
+    return console.log('hello')
+  } else {
+    const newName = name
+    const newScore = points
+    const player = { name: newName, score: newScore }
+    playerScores.push(player)
+  
+    if (localStorage) {
+      localStorage.setItem('scores', JSON.stringify(playerScores))
+    }
+    orderAndDisplayScores()
   }
-
-  orderAndDisplayScores()
 }
 
 function orderAndDisplayScores() {
@@ -60,7 +103,7 @@ function orderAndDisplayScores() {
     .sort((playerA, playerB) => playerB.score - playerA.score)
 
     .map(player => {
-      return `<li>${player.name} has ${player.score} apples.</li>`
+      return `<li>${player.name} has ${player.score} points</li>`
     })
 
   scoresDisplay.innerHTML = array.join('')
@@ -69,8 +112,8 @@ function orderAndDisplayScores() {
 
 resetButton.addEventListener('click', () => {
   localStorage.removeItem('scores')
+  location.reload()
 })
-
 
 
 
@@ -79,7 +122,7 @@ for (let i = 0; i < width ** 2; i++) {
   const div = document.createElement('div')
   div.classList.add('cell')
   grid.appendChild(div)
-  div.innerHTML = i
+  // div.innerHTML = i
   cells.push(div)
 }
 
@@ -95,18 +138,23 @@ invaders.forEach((alien) => {
 
 
 
+
 startButton.addEventListener('click', () => {
 
+  // game = true 
+  
   // * AVENGERS END GAME
   function result() {
     if (youWon) {
       clearInterval(intervalAlien)
-      popWin.style.display = 'flex'
-      // leaderBoard()
+      overlay.style.display = 'block'
+      popResult.style.display = 'flex'
+      titlePopResult.innerHTML = 'WINNERRRRRR'
     } else if (youLost) {
+      overlay.style.display = 'block'
+      popResult.style.display = 'flex'
+      titlePopResult.innerHTML = 'LOSERRRRRR'
       clearInterval(intervalAlien)
-      alert('Game Over')
-      leaderBoard()
     }
   }
 
@@ -154,7 +202,7 @@ startButton.addEventListener('click', () => {
           clearInterval(intervalLazer)
         }
 
-      }, 100)
+      }, 300)
     }
   }
 
@@ -204,7 +252,7 @@ startButton.addEventListener('click', () => {
       // INNTER TEXT PLAYER LIVES
       livesDiplasy.innerText = `${playerLives}`
 
-    }, 500)
+    }, 220)
   }
 
 
@@ -268,7 +316,7 @@ startButton.addEventListener('click', () => {
     }
 
 
-  }, 2500)
+  }, 2000)
 
 
 
@@ -290,9 +338,7 @@ startButton.addEventListener('click', () => {
 })
 
 
-submit.addEventListener('click', () => {
-  console.log('happy')
-})
+
 
 
 
